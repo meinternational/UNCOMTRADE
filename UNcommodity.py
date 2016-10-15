@@ -13,8 +13,6 @@ parser.add_argument('-create_db', dest='create_db', action='store_true')
 parser.set_defaults(create_db=False)
 args = parser.parse_args()
 
-waiting_time = 2; #3600/100 # 100 calls per hour
-
 def load_country_codes(filename):
     f = open(filename,'rb')
     reader = csv.reader(f)
@@ -29,7 +27,7 @@ def load_country_codes(filename):
     return codes
 
 
-def retrieve(url):
+def retrieve(url,waiting_time):
     r=urllib.urlopen(url)
     data=json.loads(r.read())
     amount_rows=data['validation']['count']['value']
@@ -92,7 +90,7 @@ def sub_query(conn,codes,year,country_code):
             print "{} <-> {} | retrieving {} entries in year {}".format(sql_data[2],sql_data[4],sql_data[1],sql_data[3])
             continue # skip data already in database
 
-        data, amount_rows, status = retrieve(url)
+        data, amount_rows, status = retrieve(url,3600/100) # delay of 36s to match 100 calls per hour restrictions
         if status == 0:
             write2tradetable(conn,data)
             print "{} <-> {} | retrieving {} entries in year {}".format(country,country_partner,amount_rows,year)
@@ -124,7 +122,7 @@ for i,country_code in enumerate(codes['Country Code']):
         # data is not in the database and must be retrieved
         if sql_status<0:
             time_download_start = time.time()
-            data, amount_rows, status = retrieve(url)
+            data, amount_rows, status = retrieve(url,2) # 2s delay in large queries due to download
             time_download = time.time() - time_download_start
             # no errors - data is complete
             if status == 0:
