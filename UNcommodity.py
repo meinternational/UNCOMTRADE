@@ -107,12 +107,13 @@ conn = sqlite3.connect("UnComTrade.sqlite")
 conn.text_factory = lambda x: unicode(x, 'utf-8', 'ignore')
 # LOAD Country Codes
 codes = load_country_codes('CountryCodeUSFull.csv')
+codes_query = load_country_codes('CountryCodeUSQuery.csv')
 years = [2011, 2012, 2013, 2014, 2015]
 # FIRST: check data rows for query complexity
-for i,country_code in enumerate(codes['Country Code']):
+for i,country_code in enumerate(codes_query['Country Code']):
     for year in years:
         start_time_inner_loop = time.time()
-        country = codes['Country Name'][i]
+        country = codes_query['Country Name'][i]
         url = 'http://comtrade.un.org/api/get?type=C&freq=A&px=S3&ps={}&r={}&p=all&rg=all&cc=ALL'.format(year,country_code)
         sql_status,sql_data = checkfromstatustable(conn,url)
         # if sql status is zero we have the full data set in the database - skip and continue
