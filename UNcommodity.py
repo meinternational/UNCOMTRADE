@@ -7,7 +7,6 @@ import os
 from time import sleep
 import time
 
-
 parser = argparse.ArgumentParser(description='UN commodity database extraction')
 parser.add_argument('-create_db', dest='create_db', action='store_true')
 parser.set_defaults(create_db=False)
@@ -104,6 +103,8 @@ if args.create_db:
     create_database("UnComTrade.sqlite")
 
 conn = sqlite3.connect("UnComTrade.sqlite")
+# important - set ignore if string can't be read by database
+conn.text_factory = lambda x: unicode(x, 'utf-8', 'ignore')
 # LOAD Country Codes
 codes = load_country_codes('CountryCodeUSFull.csv')
 years = [2011, 2012, 2013, 2014, 2015]
