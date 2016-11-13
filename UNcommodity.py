@@ -27,12 +27,20 @@ def load_country_codes(filename):
 
 
 def retrieve(url,waiting_time):
-    r=urllib.urlopen(url)
-    data=json.loads(r.read())
-    amount_rows=data['validation']['count']['value']
-    status = data['validation']['status']['value']
-    sleep(waiting_time)
-    return data, amount_rows, status
+	not_complete = True
+	while not_complete:
+		try: 
+			r=urllib.urlopen(url)
+    			data=json.loads(r.read())
+    			amount_rows=data['validation']['count']['value']
+    			status = data['validation']['status']['value']
+    			sleep(waiting_time)
+			not_complete = False
+		except:
+			print "Unexpected error:", sys.exc_info()[0]
+			sleep(60)
+
+    	return data, amount_rows, status
 
 def write2tradetable(conn,data):
     # WRITE retrieved DATA into DATABASE
